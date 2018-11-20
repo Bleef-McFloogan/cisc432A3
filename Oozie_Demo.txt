@@ -1,0 +1,65 @@
+# oozie,   Demo - with Spark
+# Credits: M. S. Rakha, Ph.D., Queen\'s University, CISC/CMPE 432
+# HortonWorks SandBox with HDP 2.5
+
+
+#To test your spark job outside Oozie, spark-submit --class Ex1_SimpleRDD --master local  learningspark-master_2.11-1.0.jar
+
+ ssh to hortworks maria_dev@ip 2222
+#command to run oozie job from the hortonworks sandbox:
+
+# Add your properties file at
+
+oozie job -oozie http://localhost:11000/oozie -config /home/maria_dev/job.properties -run
+
+#You should a jobID
+
+To mointor your oozie job: 
+http://IP:11000/oozie/  
+or if you running the SandBox on your local virtual machine:
+http://localhost:11000/oozie/
+
+
+oozie job -oozie http://localhost:11000/oozie -config /home/maria_dev/job_works.properties -run
+
+##oozie support. 
+
+oozie job -oozie http://localhost:11000/oozie -config /home/maria_dev/spark_oozie.properties -run
+
+http://localhost:11000/oozie/
+
+#make sure to be running the spark2 run the command to know your version: spark-submit --version 
+export SPARK_MAJOR_VERSION=2
+
+
+# in command line
+oozie jobs -jobtype workflow
+# to kill a oozie job.
+oozie job -kill [id]
+oozie job -kill 0000008-181111191459307-oozie-oozi-W
+
+
+-spark/ozzie
+https://oozie.apache.org/docs/5.0.0/DG_SparkActionExtension.html
+
+
+
+yarn application -list 
+yarn application -kill $application_id
+
+
+
+
+https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.5/bk_spark-component-guide/content/ch_oozie-spark-action.html
+
+
+check your cluster jobs at :
+
+http://localhost:8088/cluster/apps
+or 
+http://ip:8088/cluster/apps
+
+
+
+add Spark2 to oozie
+https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.5/bk_spark-component-guide/content/ch_oozie-spark-action.html

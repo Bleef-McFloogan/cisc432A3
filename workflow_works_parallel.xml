@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:0.2" name="ParallelWorkFlow_Works">
+    <start to="forking"/>
+ 
+ 
+   <fork name="forking">
+        <path start="spark-node"/>
+        <path start="sqoop-node"/>
+    </fork>
+ 
+	 <action name="spark-node">
+				<spark xmlns="uri:oozie:spark-action:0.1">
+				<job-tracker>${jobTracker}</job-tracker>
+				<name-node>${nameNode}</name-node>
+				<prepare>
+				<delete path="${nameNode}/user/${wf:user()}/${examplesRoot}/output-data"/>
+				</prepare>
+				<master>yarn</master>
+				<mode>cluster</mode>
+				<name>Ex1_SimpleRDD</name>
+				<class>Ex1_SimpleRDD</class>
+				<jar>${nameNode}/user/${wf:user()}/${examplesRoot}/learningspark-master_2.11-1.0.jar</jar>
+				<spark-opts>--driver-memory 520M --executor-memory 520M   --executor-cores 1  </spark-opts>
+				</spark>
+				<ok to="joining" />
+				<error to="fail" />
+	 </action>
+    <action name="sqoop-node">
+        <sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+                <delete path="${nameNode}/user/maria_dev/ratings"/>
+            </prepare>
+ 
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+            </configuration>
+            <command>import --connect jdbc:mysql://localhost/sqoop  --driver com.mysql.jdbc.Driver --table ratings -m 1</command>
+        </sqoop>
+        <ok to="joining"/>
+        <error to="fail"/>
+    </action>
+  
+  
+    <join name="joining" to="sqoop-node2"/>
+ 
+ 
+    <action name="sqoop-node2">
+        <sqoop xmlns="uri:oozie:sqoop-action:0.2">
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+                <delete path="${nameNode}/user/maria_dev/ratings"/>
+            </prepare>
+ 
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+            </configuration>
+            <command>import --connect jdbc:mysql://localhost/sqoop  --driver com.mysql.jdbc.Driver --table ratings -m 1</command>
+        </sqoop>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+ 
+    <kill name="fail">
+        <message>Sqoop failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name="end"/>
+</workflow-app>
